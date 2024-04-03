@@ -3,51 +3,64 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-
-
 #read CSV file
 df = pd.read_csv("https://raw.githubusercontent.com/Natthadon01/test/main/test_data_clean.csv")
 
+#Page Setup
+st.set_page_config(
+    page_title="Restaurant Analytics",
+    layout="wide")
 
 st.title('Restaurant Analytics')
-st.write('Author: Natthadon Jang')
-
-col1, col2 = st.columns(2)
 
 
 
 ## Chart 1 Food Sales trend
+
+# Adjust datatype and format of the date column.
 df[['Day', 'Month', 'Year']] = df['Date'].str.split('/', expand=True)
 
 df['Date'] = pd.to_datetime(df[['Day', 'Month', 'Year']], format='%d/%m/%y')
 
 df.drop(['Day', 'Month', 'Year'], axis=1, inplace=True)
 
-df["Month Name"] = df["Date"].dt.month_name()
 
-df['Month Name'] = df['Month Name'].map(lambda x: x[:3].upper())
+# Create a column for month names.
+df["Month Name"] = df["Date"].dt.month_name()\
+                             .map(lambda x: x[:3]\
+                             .upper())
 
+
+# Count the number of orders grouped by Month Name and Menu.
+ftrend = df[df["Category"] == "food"]\
+    .groupby(["Month Name","Menu"])["Price"]\
+    .agg("count")\
+    .reset_index()
+
+
+# Rename column
+ftrend = ftrend.rename(columns= {"Price":"Quantity"}) 
+
+# Sort the data by month.
 Month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-ftrend = df[df["Category"] == "food"].groupby(["Month Name","Menu"])["Price"].agg("count").reset_index()
-ftrend = ftrend.rename(columns= {"Price":"Quantity"})
-#เรียงข้อมูล
+
 ftrend["Month Name"] = pd.Categorical(ftrend["Month Name"], categories=Month, ordered=True)
+
 ftrend.sort_values("Month Name", inplace=True)
 
 
-# Create line chart using Plotly Express
+# Create Chart 1: Food Sales Trend.
 chart1 = px.line(ftrend, 
                     x='Month Name', 
                     y='Quantity', 
                     color='Menu', 
                     title= 'Trend of Food Products Sales')
 
-# Add axis titles
-chart1.update_layout(xaxis_title='',
-                         yaxis_title='Quantity')
+chart1.update_layout(xaxis_title='', 
+                     yaxis_title='Quantity')
 
-# Display the line chart using Streamlit
-st.plotly_chart(chart1)
+
+
 
 ## Chart 2 Drink trend
 dtrend = df[df["Category"] == "drink"].groupby(["Month Name","Menu"])["Price"].agg("count").reset_index()
@@ -72,7 +85,7 @@ chart2.update_layout(xaxis_title='',
                          yaxis_title='Quantity')
 
 # Display the line chart using Streamlit
-st.plotly_chart(chart2)
+
 
 
 
@@ -89,7 +102,7 @@ chart3_plot = px.bar(chart3_data_sort, x='Price', y='Menu', orientation='h',
 chart3_plot.update_layout(yaxis_title='', xaxis_title = 'Sales')
 
 #plot horizontal bar chart
-st.plotly_chart(chart3_plot)
+
 
 
 
@@ -117,7 +130,7 @@ chart4_plot = px.bar(chart4_data_sort,
 
 chart4_plot.update_layout(yaxis_title='', xaxis_title = 'Sales') #Rename Axix Title
 #plot horizontal bar chart
-st.plotly_chart(chart4_plot)
+
 
 
 ###########################################
@@ -201,7 +214,7 @@ chart5.update_layout(title='Average Sales and Quantity by Day',
 
 chart5.update_layout(yaxis=dict(showgrid=False, zeroline=False))
 # Display the combo chart using Streamlit
-st.plotly_chart(chart5)
+
 
 
 ############################################################
@@ -266,7 +279,7 @@ chart6.update_layout(title='"Average Sales and Quantity by Time"',
 
 chart6.update_layout(yaxis=dict(showgrid=False, zeroline=False))
 # Display the combo chart using Streamlit
-st.plotly_chart(chart6)
+
 
 
 #Chart 7 kitchen staff manpower
@@ -335,7 +348,7 @@ chart7.update_layout(title='Kitchen Manpower',
 chart7.update_layout(yaxis=dict(showgrid=False, zeroline=False))
 
 # Display the combo chart using Streamlit
-st.plotly_chart(chart7)
+
 
 
 ##Chart 8 Drink staff manpower
@@ -399,5 +412,21 @@ chart8.update_layout(title='Drinks Manpower',
 # Update layout to remove grid lines and zero lines for y axis
 chart8.update_layout(yaxis=dict(showgrid=False, zeroline=False))
 
-# Display the combo chart using Streamlit
-st.plotly_chart(chart8)
+
+
+
+
+col1, col2 = st.columns(2)
+# Display Chart 1-4 in the first column
+with col1:
+    st.plotly_chart(chart1, use_container_width=True)
+    st.plotly_chart(chart3_plot, use_container_width=True)
+    st.plotly_chart(chart5, use_container_width=True)
+    st.plotly_chart(chart7, use_container_width=True)
+
+# Display Chart 2-8 in the second column
+with col2:
+    st.plotly_chart(chart2, use_container_width=True)
+    st.plotly_chart(chart4_plot, use_container_width=True)
+    st.plotly_chart(chart6, use_container_width=True)
+    st.plotly_chart(chart8, use_container_width=True)
