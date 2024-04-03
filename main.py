@@ -63,7 +63,9 @@ chart1.update_layout(xaxis_title='',
 
 
 ## Chart 2 Drink trend
-dtrend = df[df["Category"] == "drink"].groupby(["Month Name","Menu"])["Price"].agg("count").reset_index()
+dtrend = df[df["Category"] == "drink"].groupby(["Month Name","Menu"])["Price"]\
+                                      .agg("count")\
+                                      .reset_index()
 
 dtrend["Month Name"] = pd.Categorical(dtrend["Month Name"], categories=Month, ordered=True)
 
