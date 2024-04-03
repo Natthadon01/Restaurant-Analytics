@@ -2,11 +2,77 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+
+#read CSV file
 df = pd.read_csv("https://raw.githubusercontent.com/Natthadon01/test/main/test_data_clean.csv")
 
 
 st.title('Restaurant Analytics')
 st.write('Author: Natthadon Jang')
+
+
+
+
+## Chart 1 Food trend
+df[['Day', 'Month', 'Year']] = df['Date'].str.split('/', expand=True)
+df['Date'] = pd.to_datetime(df[['Day', 'Month', 'Year']], format='%d/%m/%y')
+
+# ลบคอลัมน์ที่ไม่จำเป็น
+df.drop(['Day', 'Month', 'Year'], axis=1, inplace=True)
+
+
+df["Month Name"] = df["Date"].dt.month_name()
+df['Month Name'] = df['Month Name'].map(lambda x: x[:3].upper())
+
+Month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+ftrend = df[df["Category"] == "food"].groupby(["Month Name","Menu"])["Price"].agg("count").reset_index()
+
+ftrend = ftrend.rename(columns= {"Price":"Quantity"})
+#เรียงข้อมูล
+ftrend["Month Name"] = pd.Categorical(ftrend["Month Name"], categories=Month, ordered=True)
+ftrend.sort_values("Month Name", inplace=True)
+
+
+# Create line chart using Plotly Express
+line_chart = px.line(ftrend, 
+                    x='Month Name', 
+                    y='Quantity', 
+                    color='Menu', 
+                    title='Food Product Movement')
+
+# Add axis titles
+line_chart.update_layout(xaxis_title='',
+                         yaxis_title='Quantity')
+
+# Display the line chart using Streamlit
+st.plotly_chart(line_chart)
+
+
+## Chart 2 Drink trend
+dtrend = df[df["Category"] == "drink"].groupby(["Month Name","Menu"])["Price"].agg("count").reset_index()
+
+dtrend["Month Name"] = pd.Categorical(dtrend["Month Name"], categories=Month, ordered=True)
+
+dtrend = dtrend.rename(columns= {"Price":"Quantity"})
+
+#เรียงข้อมูล
+dtrend.sort_values("Month Name", inplace=True)
+
+
+# Create line chart using Plotly Express
+line_chart = px.line(dtrend, 
+                    x='Month Name', 
+                    y='Quantity', 
+                    color='Menu', 
+                    title='Drink Product Movement')
+
+# Add axis titles
+line_chart.update_layout(xaxis_title='',
+                         yaxis_title='Quantity')
+
+# Display the line chart using Streamlit
+st.plotly_chart(line_chart)
+
 
 
 ##Chart 3 Food Barchart
