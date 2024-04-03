@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+
+
 #read CSV file
 df = pd.read_csv("https://raw.githubusercontent.com/Natthadon01/test/main/test_data_clean.csv")
 
@@ -10,23 +12,23 @@ df = pd.read_csv("https://raw.githubusercontent.com/Natthadon01/test/main/test_d
 st.title('Restaurant Analytics')
 st.write('Author: Natthadon Jang')
 
+col1, col2 = st.columns(2)
 
 
 
-## Chart 1 Food trend
+## Chart 1 Food Sales trend
 df[['Day', 'Month', 'Year']] = df['Date'].str.split('/', expand=True)
+
 df['Date'] = pd.to_datetime(df[['Day', 'Month', 'Year']], format='%d/%m/%y')
 
-# ลบคอลัมน์ที่ไม่จำเป็น
 df.drop(['Day', 'Month', 'Year'], axis=1, inplace=True)
 
-
 df["Month Name"] = df["Date"].dt.month_name()
+
 df['Month Name'] = df['Month Name'].map(lambda x: x[:3].upper())
 
 Month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 ftrend = df[df["Category"] == "food"].groupby(["Month Name","Menu"])["Price"].agg("count").reset_index()
-
 ftrend = ftrend.rename(columns= {"Price":"Quantity"})
 #เรียงข้อมูล
 ftrend["Month Name"] = pd.Categorical(ftrend["Month Name"], categories=Month, ordered=True)
@@ -34,19 +36,18 @@ ftrend.sort_values("Month Name", inplace=True)
 
 
 # Create line chart using Plotly Express
-line_chart = px.line(ftrend, 
+chart1 = px.line(ftrend, 
                     x='Month Name', 
                     y='Quantity', 
                     color='Menu', 
-                    title='Food Product Movement')
+                    title= 'Trend of Food Products Sales')
 
 # Add axis titles
-line_chart.update_layout(xaxis_title='',
+chart1.update_layout(xaxis_title='',
                          yaxis_title='Quantity')
 
 # Display the line chart using Streamlit
-st.plotly_chart(line_chart)
-
+st.plotly_chart(chart1)
 
 ## Chart 2 Drink trend
 dtrend = df[df["Category"] == "drink"].groupby(["Month Name","Menu"])["Price"].agg("count").reset_index()
@@ -60,18 +61,18 @@ dtrend.sort_values("Month Name", inplace=True)
 
 
 # Create line chart using Plotly Express
-line_chart = px.line(dtrend, 
+chart2 = px.line(dtrend, 
                     x='Month Name', 
-                    y='Quantity', 
+                    y='Quantity',
                     color='Menu', 
-                    title='Drink Product Movement')
+                    title='Trend of Beverage Products Sales')
 
 # Add axis titles
-line_chart.update_layout(xaxis_title='',
+chart2.update_layout(xaxis_title='',
                          yaxis_title='Quantity')
 
 # Display the line chart using Streamlit
-st.plotly_chart(line_chart)
+st.plotly_chart(chart2)
 
 
 
@@ -79,29 +80,49 @@ st.plotly_chart(line_chart)
 #filter data to visualize
 chart3 = df.query("Category == 'food'").groupby("Menu")["Price"].agg("sum").round().reset_index()
 chart3_data_sort = chart3.sort_values(by='Price', ascending=True)
+chart3_data_sort["Price_T"] = (chart3_data_sort["Price"]/1000).round(decimals = 1).astype(str) + "K"
+
 #setting Chart
 chart3_plot = px.bar(chart3_data_sort, x='Price', y='Menu', orientation='h', 
-    title='Total Sales by Food', text = 'Price')
+    title='Food Products Sales', text = 'Price_T')
 
-chart3_plot.update_layout(yaxis_title='', xaxis_title = 'Sales') #Rename Axix Title
+chart3_plot.update_layout(yaxis_title='', xaxis_title = 'Sales')
 
 #plot horizontal bar chart
 st.plotly_chart(chart3_plot)
 
 
+
+
+
+
+
+
+
 ##Chart 4 Drink Barchart
 chart4 = df.query("Category == 'drink'").groupby("Menu")["Price"].agg("sum").round().reset_index()
 chart4_data_sort = chart4.sort_values(by='Price', ascending=True)
+
+chart4_data_sort["Price_T"] = (chart4_data_sort["Price"]/1000).round(decimals = 1).astype(str) + "K"
+
+
 #setting Chart
-chart4_plot = px.bar(chart4_data_sort, x='Price', y='Menu', orientation='h', title='Total Sales by Drink', text = 'Price')
+chart4_plot = px.bar(chart4_data_sort, 
+                    x='Price', 
+                    y='Menu', 
+                    orientation='h', 
+                    title='Beverage Products Sales', 
+                    text = 'Price_T')
+
+
 chart4_plot.update_layout(yaxis_title='', xaxis_title = 'Sales') #Rename Axix Title
 #plot horizontal bar chart
 st.plotly_chart(chart4_plot)
 
 
+###########################################
 
-
-
+#Chart 5 
 #Count Date by Day
 Unique_Day_name = df.groupby("Day Of Week")["Date"].nunique().reset_index(name= "Unique Dates")
 
@@ -143,25 +164,48 @@ sales_data["Day Of Week"] = pd.Categorical(sales_data["Day Of Week"], categories
 #เรียงข้อมูล
 sales_data.sort_values("Day Of Week", inplace=True)
 
+#Chart 5 visualize
 
-sales_data = pd.DataFrame(sales_data)
+###########################################
+# Create subplots with one row and one column
+chart5 = go.Figure()
+
+# Add bar chart for 'Avg Sales' on the primary Y axis
+chart5.add_trace(go.Bar(x=sales_data['Day Of Week'], 
+                        y=sales_data['Avg_Sales'], 
+                        name='Average Sales', 
+                        yaxis='y', 
+                        text= sales_data['Avg_Sales']))
+
+# Add line chart for 'Avg Unit sales' on the secondary Y axis
+chart5.add_trace(go.Scatter(x=sales_data['Day Of Week'], 
+                            y=sales_data['Avg_Unit_sales'], 
+                            mode='lines', 
+                            name='Average Quantity', 
+                            yaxis='y2',
+                            line=dict(color='red')))
+
+# Update layout
+chart5.update_layout(title='Average Sales and Quantity by Day', 
+                     xaxis_title='', 
+                     yaxis_title='Sales',
+                     yaxis2=dict(title='Quantity', 
+                                 overlaying='y', 
+                                 side='right', 
+                                 position=1,
+                                 range=[0, max(sales_data['Avg_Unit_sales'])]),  # Set the range to start from 0
+                     legend=dict(x=1.05, 
+                                 y=1.0, 
+                                 xanchor='left', 
+                                 yanchor='top'))
+
+chart5.update_layout(yaxis=dict(showgrid=False, zeroline=False))
+# Display the combo chart using Streamlit
+st.plotly_chart(chart5)
 
 
-#Chart 5 
-
-# Create a column chart using Plotly Express
-chart5 = px.bar(sales_data, x='Day Of Week', y='Avg_Sales', title='Average Sales by Day of Week')
-# Add axis titles
-chart5.update_layout(xaxis_title='', yaxis_title='Average Sales')
-# Add line chart for average unit sales
-line_chart = px.line(sales_data, x='Day Of Week', y='Avg_Unit_sales')
-line_chart.update_traces(line=dict(color='red'))  # Set the color of the line chart
-# Display the combined chart using Streamlit
-st.plotly_chart(chart5.add_trace(line_chart.data[0]))
-
-
-
-
+############################################################
+# Chart 6
 Opened_Day = df["Date"].nunique()
 Unit_by_time = df["Order Hour"]\
             .value_counts()\
@@ -186,19 +230,44 @@ time_order["Avg Sales Unit"] = time_order["Sales Unit"]/Opened_Day
 time_order["Avg Sales"] = time_order["Sales"]/Opened_Day
 time_order = time_order.round().sort_values(by= "Hour" )
 
-
-
 #Chart 6 Sales by Time
-# Create a bar chart using Plotly Express
-chart6 = px.bar(time_order, x='Hour', y='Avg Sales', title='Average Sales by Hour')
-# Add axis titles
-chart6.update_layout(xaxis_title='Hour', yaxis_title='Average Sales')
-# Display the bar chart using Streamlit
-line_chart = px.line(time_order, x='Hour', y='Avg Sales Unit', title='Average Sales Unit by Hour')
-line_chart.update_traces(line=dict(color='red'))  # Set the color of the line chart
+###################
+# Create subplots with one row and one column
+chart6 = go.Figure()
 
-# Display both bar chart and line chart using Streamlit
-st.plotly_chart(chart6.add_trace(line_chart.data[0]))
+# Add bar chart for 'Avg Sales' on the primary Y axis
+chart6.add_trace(go.Bar(x=time_order['Hour'], 
+                        y=time_order['Avg Sales'], 
+                        name='Average Sales', 
+                        yaxis='y', 
+                        text= time_order['Avg Sales']))
+
+# Add line chart for 'Avg Unit sales' on the secondary Y axis
+chart6.add_trace(go.Scatter(x=time_order['Hour'], 
+                            y=time_order['Avg Sales Unit'], 
+                            mode='lines', 
+                            name='Average Quantity', 
+                            yaxis='y2',
+                            line= dict(color = 'red')))
+
+# Update layout
+chart6.update_layout(title='"Average Sales and Quantity by Time"', 
+                    xaxis_title='Hour', 
+                    yaxis_title='Sales',
+                    yaxis2=dict(title=' Quantity', 
+                                overlaying='y', 
+                                side='right', 
+                                position=1,
+                                range=[0, max(time_order['Avg Sales Unit'])]),  # Set the range to start from 0
+                    legend=dict(x=1.05, 
+                                y=1.0, 
+                                xanchor='left', 
+                                yanchor='top'))
+
+chart6.update_layout(yaxis=dict(showgrid=False, zeroline=False))
+# Display the combo chart using Streamlit
+st.plotly_chart(chart6)
+
 
 #Chart 7 kitchen staff manpower
 fstandard = 10
@@ -221,30 +290,52 @@ df_kstaff["Day Of Week"] = pd.Categorical(df_kstaff["Day Of Week"],
 
 df_kstaff.sort_values("Day Of Week", inplace=True)
 
+###################
+# Create subplots with one row and one column
+chart7 = go.Figure()
 
+# Add bar chart for 'Avg Sales' on the primary Y axis
+chart7.add_trace(go.Bar(x=df_kstaff['Day Of Week'], 
+                        y=df_kstaff['Kitchen Staff'], 
+                        name='Avg Staff', 
+                        yaxis='y', 
+                        text= df_kstaff['Kitchen Staff']))
 
+# Add line chart for 'Avg Unit sales' on the secondary Y axis
+chart7.add_trace(go.Scatter(x=df_kstaff['Day Of Week'], 
+                            y=df_kstaff['Waiting Time'], 
+                            mode='lines', 
+                            name='Avg Waiting', 
+                            yaxis='y2',
+                            line=dict(color='red')))
 
-# Create a bar chart using Plotly Express
-column_chart7 = px.bar(df_kstaff, x='Day Of Week', y='Kitchen Staff', title='Kitchen Staff by Day of Week')
-# Add axis titles
-column_chart7.update_layout(xaxis_title='', yaxis_title='Kitchen Staff')
-# Create a line chart for Waiting Time using Plotly Express
-line_chart = px.line(df_kstaff, x='Day Of Week', y='Waiting Time', title='Waiting Time by Day of Week')
-# Set the line color to red
-line_chart.update_traces(line=dict(color='red'))
-# Add Waiting Time as a line to the bar chart
-column_chart7.add_trace(line_chart.data[0])
+# Add constant line with name 'Standard Time'
+chart7.add_trace(go.Scatter(x=df_kstaff['Day Of Week'], 
+                            y=[fstandard] * len(df_kstaff),  # Create a list of 10s with the same length as the data
+                            mode='lines', 
+                            name='Standard Time', 
+                            yaxis='y2',
+                            line=dict(color='yellow', width=2, dash='dashdot')))
 
-# Add a constant line at y=10
-column_chart7.add_hline(y=fstandard, 
-            line_dash="dash", 
-            line_color="yellow", 
-            annotation_text="standard line", 
-            annotation_position="top left")
+# Update layout
+chart7.update_layout(title='Kitchen Manpower', 
+                    xaxis_title='', 
+                    yaxis_title='Kitchen Staff',
+                    yaxis2=dict(title='Waiting Time (Minutes)', 
+                                overlaying='y', 
+                                side='right', 
+                                position=1,
+                                range=[0, max(df_kstaff['Waiting Time'])]),  # Set the range to start from 0
+                    legend=dict(x=1.05, 
+                                y=1.0, 
+                                xanchor='left', 
+                                yanchor='top'))
 
-# Display the combined chart using Streamlit
-st.plotly_chart(column_chart7)
+# Update layout to remove grid lines and zero lines for y axis
+chart7.update_layout(yaxis=dict(showgrid=False, zeroline=False))
 
+# Display the combo chart using Streamlit
+st.plotly_chart(chart7)
 
 
 ##Chart 8 Drink staff manpower
@@ -264,25 +355,49 @@ df_dstaff["Day Of Week"] = pd.Categorical(df_dstaff["Day Of Week"], categories=d
 df_dstaff.sort_values("Day Of Week", inplace=True)
 
 
+###################
+# Create subplots with one row and one column
+chart8 = go.Figure()
 
-#Create Chart8
-# Create a bar chart using Plotly Express
-column_chart8 = px.bar(df_dstaff, x='Day Of Week', y='Drinks Staff', title='Drink Staff Manpower')
-# Add axis titles
-column_chart8.update_layout(xaxis_title='', yaxis_title='Drinks Staff')
-# Create a line chart for Waiting Time using Plotly Express
-line_chart = px.line(df_dstaff, x='Day Of Week', y='Waiting Time', title='Waiting Time by Day of Week')
-# Set the line color to red
-line_chart.update_traces(line=dict(color='red'))
+# Add bar chart for 'Avg Sales' on the primary Y axis
+chart8.add_trace(go.Bar(x=df_dstaff['Day Of Week'], 
+                        y=df_dstaff['Drinks Staff'], 
+                        name='Avg Staff', 
+                        yaxis='y', 
+                        text= df_dstaff['Drinks Staff']))
 
-# Add Waiting Time as a line to the bar chart
-column_chart8.add_trace(line_chart.data[0])
-# Add a constant line at y=10
-column_chart8.add_hline(y=dstandard, 
-            line_dash="dash", 
-            line_color="yellow", 
-            annotation_text="standard line", 
-            annotation_position="top left")
+# Add line chart for 'Avg Unit sales' on the secondary Y axis
+chart8.add_trace(go.Scatter(x=df_dstaff['Day Of Week'], 
+                            y=df_dstaff['Waiting Time'], 
+                            mode='lines', 
+                            name='Avg Waiting', 
+                            yaxis='y2',
+                            line=dict(color='red')))
 
-# Display the combined chart using Streamlit
-st.plotly_chart(column_chart8)
+# Add constant line with name 'Standard Time'
+chart8.add_trace(go.Scatter(x=df_dstaff['Day Of Week'], 
+                            y=[dstandard] * len(df_dstaff),  # Create a list of 10s with the same length as the data
+                            mode='lines', 
+                            name='Standard Time', 
+                            yaxis='y2',
+                            line=dict(color='yellow', width=2, dash='dashdot')))
+
+# Update layout
+chart8.update_layout(title='Drinks Manpower', 
+                    xaxis_title='', 
+                    yaxis_title='Drink Staff',
+                    yaxis2=dict(title='Waiting Time (Minutes)', 
+                                overlaying='y', 
+                                side='right', 
+                                position=1,
+                                range=[0, max(df_dstaff['Waiting Time'])]),  # Set the range to start from 0
+                    legend=dict(x=1.05, 
+                                y=1.0, 
+                                xanchor='left', 
+                                yanchor='top'))
+
+# Update layout to remove grid lines and zero lines for y axis
+chart8.update_layout(yaxis=dict(showgrid=False, zeroline=False))
+
+# Display the combo chart using Streamlit
+st.plotly_chart(chart8)
