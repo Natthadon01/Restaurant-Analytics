@@ -4,7 +4,20 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 #read CSV file
-df = pd.read_csv("https://raw.githubusercontent.com/Natthadon01/test/main/test_data_clean.csv")
+# Function to load data from URL
+def load_data():
+    return pd.read_csv("https://raw.githubusercontent.com/Natthadon01/test/main/test_data_clean.csv")
+
+# Load initial data
+df = load_data()
+
+# Function to update data
+def update_data():
+    while True:
+        new_df = load_data() # Load new data
+        df.iloc[:] = new_df.iloc[:] # Update DataFrame
+        time.sleep(60)
+
 
 #Page Setup
 st.set_page_config(
@@ -49,15 +62,22 @@ ftrend.sort_values("Month Name", inplace=True)
 
 
 # Create Chart 1
-chart1 = px.line(ftrend, 
-                    x='Month Name', 
-                    y='Quantity', 
-                    color='Menu', 
-                    title= 'Trend of Food Products Sales')
+chart1 = go.Figure()
 
-chart1.update_layout(xaxis_title='', 
+# Add Line Chart
+for menu, color in zip(ftrend['Menu'].unique(), px.colors.qualitative.Plotly):
+    data = ftrend[ftrend['Menu'] == menu]
+    chart1.add_trace(go.Scatter(x=data['Month Name'], 
+                                 y=data['Quantity'], 
+                                 mode='lines', 
+                                 name=menu,
+                                 line=dict(color=color)))
+
+# Update layout
+chart1.update_layout(title='Trend of Food Products Sales',
+                     xaxis_title='',
                      yaxis_title='Quantity',
-                     yaxis=dict(range=[0, max(ftrend['Quantity'])+300]))
+                     yaxis=dict(range=[0, max(ftrend['Quantity']) + 300]))
 
 
 ## Chart 2 Trend of Beverage Product Sales
@@ -74,16 +94,23 @@ dtrend = dtrend.rename(columns= {"Price":"Quantity"})
 
 dtrend.sort_values("Month Name", inplace=True)
 
-
 # Create Chart 2
-chart2 = px.line(dtrend, 
-                    x='Month Name', 
-                    y='Quantity',
-                    color='Menu', 
-                    title='Trend of Beverage Products Sales')
+chart2 = go.Figure()
 
-chart2.update_layout(xaxis_title='',yaxis_title='Quantity',
-                     yaxis=dict(range=[0, max(dtrend['Quantity'])+100]))
+# Add Line Chart
+for menu, color in zip(dtrend['Menu'].unique(), px.colors.qualitative.Plotly):
+    data = dtrend[dtrend['Menu'] == menu]
+    chart2.add_trace(go.Scatter(x=data['Month Name'], 
+                                 y=data['Quantity'], 
+                                 mode='lines', 
+                                 name=menu,
+                                 line=dict(color=color)))
+
+# Update layout
+chart2.update_layout(title='Trend of Beverage Products Sales',
+                     xaxis_title='',
+                     yaxis_title='Quantity',
+                     yaxis=dict(range=[0, max(dtrend['Quantity']) + 100]))
 
 
 ##Chart 3 Food Product Sales
@@ -101,14 +128,22 @@ chart3_data_sort["Price_T"] = (chart3_data_sort["Price"]/1000).round(decimals = 
 
 
 # Create Chart 3
-chart3_plot = px.bar(chart3_data_sort, 
-                     x='Price', 
-                     y='Menu', 
-                     orientation='h', 
-                     title='Food Products Sales', 
-                     text = 'Price_T')
+chart3_plot = go.Figure()
 
-chart3_plot.update_layout(yaxis_title='', xaxis_title = 'Sales')
+# Add bar chart
+chart3_plot.add_trace(go.Bar(x=chart3_data_sort['Price'],
+                           y=chart3_data_sort['Menu'],
+                           orientation='h',
+                           text=chart3_data_sort['Price_T'],
+                           hoverinfo='text',
+                           marker=dict(color=px.colors.qualitative.Plotly)))
+
+# Update layout
+chart3_plot.update_layout(title='Food Products Sales',
+                     yaxis_title='',
+                     xaxis_title='Sales'
+                     )
+
 
 
 ##Chart 4 Beverage Products Sales
@@ -126,15 +161,20 @@ chart4_data_sort["Price_T"] = (chart4_data_sort["Price"]/1000).round(decimals = 
 
 
 # Create Chart
-chart4_plot = px.bar(chart4_data_sort, 
-                    x='Price', 
-                    y='Menu', 
-                    orientation='h', 
-                    title='Beverage Products Sales', 
-                    text = 'Price_T')
+chart4_plot = go.Figure()
 
+# Add bar chart
+chart4_plot.add_trace(go.Bar(x=chart4_data_sort['Price'],
+                           y=chart4_data_sort['Menu'],
+                           orientation='h',
+                           text=chart4_data_sort['Price_T'],
+                           hoverinfo='text',
+                           marker=dict(color=px.colors.qualitative.Plotly)))
 
-chart4_plot.update_layout(yaxis_title='', xaxis_title = 'Sales') #Rename Axix Title
+# Update layout
+chart4_plot.update_layout(title='Beverage Products Sales',
+                     yaxis_title='',
+                     xaxis_title='Sales')
 
 
 # Chart 5 Average Sales and Quantity by Day
@@ -177,7 +217,6 @@ sales_data["Avg_Sales"] = sales_data["Total Sales"] / sales_data["Unique Dates"]
 sales_data["Avg_Sales"] = sales_data["Avg_Sales"].round()
 
 
-
 # Sort the data
 day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
@@ -188,7 +227,6 @@ sales_data["Day Of Week"] = pd.Categorical(sales_data["Day Of Week"],
 sales_data.sort_values("Day Of Week", inplace=True)
 
 # Create Chart 5
-
 chart5 = go.Figure()
 
 # Add bar chart
