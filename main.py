@@ -272,7 +272,7 @@ chart6.add_trace(go.Scatter(x=time_order['Hour'],
                             line= dict(color = 'red')))
 
 # Update layout
-chart6.update_layout(title='"Average Sales and Quantity by Time"', 
+chart6.update_layout(title='Average Sales and Quantity by Time', 
                     xaxis_title='Hour', 
                     yaxis_title='Sales',
                     yaxis=dict(showgrid=False, 
