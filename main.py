@@ -14,7 +14,6 @@ st.set_page_config(
 st.title('Restaurant Analytics')
 
 
-
 ## Chart 1 Trend of Food Products Sales
 
 # Adjust datatype and format of the date column.
@@ -404,7 +403,7 @@ chart8.add_trace(go.Scatter(x=df_dstaff['Day Of Week'],
 chart8.add_trace(go.Scatter(x=df_dstaff['Day Of Week'], 
                             y=[dstandard] * len(df_dstaff),  # Create a list of 10s with the same length as the data
                             mode='lines', 
-                            name='Standard Time', 
+                            name='Target Time', 
                             yaxis='y2',
                             line=dict(color='yellow', width=2, dash='dashdot')))
 
