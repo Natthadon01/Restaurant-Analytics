@@ -151,11 +151,11 @@ chart3_plot.add_trace(go.Scatter( x=chart3_data_sort['Menu'],
 
 # Update layout
 chart3_plot.update_layout(title='Food Products Sales',
-                     yaxis_title='Total Sales',
+                     yaxis_title='Sales',
                      xaxis_title='',
                      yaxis=dict(range=[0, max(chart3_data_sort['Sales'])+1000],
                                 showgrid=False),  
-                     yaxis2 = dict(title = "Total Quantity",
+                     yaxis2 = dict(title = "Quantity",
                      showgrid=False,
                                  overlaying='y', 
                                  side='right', 
@@ -204,11 +204,11 @@ chart4_plot.add_trace(go.Scatter(x=chart4_data_sort['Menu'],
 
 # Update layout
 chart4_plot.update_layout(title='Beverage Products Sales',
-                     yaxis_title='Total Sales',
+                     yaxis_title='Sales',
                      xaxis_title='',
                      yaxis=dict(range=[0, max(chart4_data_sort['Sales']) + 1000],
                                 showgrid=False),  
-                     yaxis2 = dict(title = "Total Quantity",
+                     yaxis2 = dict(title = "Quantity",
                                    showgrid=False,
                                      overlaying='y', 
                                     side='right', 
@@ -280,7 +280,7 @@ chart5.add_trace(go.Bar(x=sales_data['Day Of Week'],
                         text= sales_data['Avg_Unit_sales']))
 
 # Update layout
-chart5.update_layout(title='Average Quantity by Day', 
+chart5.update_layout(title='Average Order per Day', 
                      xaxis_title='', 
                      yaxis_title='Sales',
                      yaxis=dict(showgrid=False),
@@ -333,8 +333,8 @@ chart6.add_trace(go.Bar(x=time_order['Hour'],
                         text= time_order['Avg Sales Unit']))
 
 # Update layout
-chart6.update_layout(title='Average Quantity by Time', 
-                    xaxis_title='Hour', 
+chart6.update_layout(title='"Average Order per Time"', 
+                    xaxis_title='Time', 
                     yaxis_title='Sales',
                     yaxis=dict(showgrid=False, 
                                range = [0,max(time_order['Avg Sales Unit'])+5]),
@@ -395,9 +395,9 @@ chart7.add_trace(go.Scatter(x=df_kstaff['Day Of Week'],
                             line=dict(color='yellow', width=2, dash='dashdot')))
 
 # Update layout
-chart7.update_layout(title='Kitchen Manpower', 
+chart7.update_layout(title='Kitchen Staff Performance', 
                      xaxis_title='', 
-                     yaxis_title='Kitchen Staff',
+                     yaxis_title='Number of Staff',
                      yaxis=dict(range=[0, max(df_kstaff['Kitchen Staff']) + 5],
                                 showgrid=False),  
                      yaxis2=dict(title='Waiting Time (Minutes)',
@@ -463,9 +463,9 @@ chart8.add_trace(go.Scatter(x=df_dstaff['Day Of Week'],
                             line=dict(color='yellow', width=2, dash='dashdot')))
 
 # Update layout
-chart8.update_layout(title='Drinks Manpower', 
+chart8.update_layout(title='Drink Staff Performance', 
                     xaxis_title='', 
-                    yaxis_title='Drink Staff',
+                    yaxis_title='Number of Staff',
                     yaxis=dict(showgrid = False,
                                 range=[0, max(df_dstaff['Drinks Staff'])+5]),
                     yaxis2=dict(title='Waiting Time (Minutes)',
