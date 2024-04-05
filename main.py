@@ -130,7 +130,7 @@ chart3_data_sort = chart3.sort_values(by='Sales', ascending= False)
 # Adjust data label formatting.
 chart3_data_sort["Price_T"] = (chart3_data_sort["Sales"]/1000).round(decimals = 1).astype(str) + "K"
 
-st.write(chart3_data_sort)
+
 # Create Chart 3
 chart3_plot = go.Figure()
 
@@ -160,7 +160,7 @@ chart3_plot.update_layout(title='Food Products Sales',
                                  overlaying='y', 
                                  side='right', 
                                  position=1,
-                                 range=[0, max(chart3_data_sort['Quantity']) + 5000]),
+                                 range=[0, max(chart3_data_sort['Quantity']) + 1000]),
                      legend=dict(x=1.05, 
                                  y=1.0, 
                                  xanchor='left', 
@@ -173,30 +173,51 @@ chart3_plot.update_layout(title='Food Products Sales',
 # Summarize Total Sales.
 chart4 = df.query("Category == 'drink'")\
            .groupby("Menu")["Price"]\
-           .agg("sum").round().reset_index()
+           .agg(["sum",'count']).round().reset_index()
+
+chart4 = chart4.rename(columns = {"sum":"Sales","count":"Quantity"})
 
 # Sort the data.
-chart4_data_sort = chart4.sort_values(by='Price', ascending=True)
+chart4_data_sort = chart4.sort_values(by='Sales', ascending=False)
 
 # Adjust data label formatting.
-chart4_data_sort["Price_T"] = (chart4_data_sort["Price"]/1000).round(decimals = 1).astype(str) + "K"
+chart4_data_sort["Price_T"] = (chart4_data_sort["Sales"]/1000).round(decimals = 1).astype(str) + "K"
 
 
 # Create Chart
 chart4_plot = go.Figure()
 
 # Add bar chart
-chart4_plot.add_trace(go.Bar(x=chart4_data_sort['Price'],
-                           y=chart4_data_sort['Menu'],
-                           orientation='h',
-                           text=chart4_data_sort['Price_T'],
-                           hoverinfo='text',
-                           marker=dict(color=px.colors.qualitative.Plotly)))
+chart4_plot.add_trace(go.Bar(x=chart4_data_sort['Menu'],
+                            y=chart4_data_sort['Sales'],
+                            name = 'Total Sales',
+                            text=chart4_data_sort['Price_T'],
+                            hoverinfo='text',
+                            marker=dict(color=px.colors.qualitative.Plotly)))
+
+chart4_plot.add_trace(go.Scatter(x=chart4_data_sort['Menu'],
+                                  y=chart4_data_sort['Quantity'],
+                                  mode = "lines",
+                                  name = "Total Quantity",
+                                  yaxis = 'y2',
+                                  line=dict(color='red')))
 
 # Update layout
 chart4_plot.update_layout(title='Beverage Products Sales',
-                     yaxis_title='',
-                     xaxis_title='Sales')
+                     yaxis_title='Total Sales',
+                     xaxis_title='',
+                     yaxis=dict(range=[0, max(chart4_data_sort['Sales']) + 1000],
+                                showgrid=False),  
+                     yaxis2 = dict(title = "Total Quantity",
+                                   showgrid=False,
+                                     overlaying='y', 
+                                    side='right', 
+                                     position=1,
+                                    range=[0, max(chart4_data_sort['Quantity']) + 500]),
+                     legend=dict(x=1.05, 
+                                 y=1.0, 
+                                 xanchor='left', 
+                                 yanchor='top'))
 
 
 # Chart 5 Average Sales and Quantity by Day
