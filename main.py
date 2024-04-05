@@ -235,7 +235,7 @@ chart5.add_trace(go.Bar(x=sales_data['Day Of Week'],
                         text= sales_data['Avg_Unit_sales']))
 
 # Update layout
-chart5.update_layout(title='Average Sales and Quantity by Day', 
+chart5.update_layout(title='Average Quantity by Day', 
                      xaxis_title='', 
                      yaxis_title='Sales',
                      yaxis=dict(showgrid=False),
@@ -288,7 +288,7 @@ chart6.add_trace(go.Bar(x=time_order['Hour'],
                         text= time_order['Avg Sales Unit']))
 
 # Update layout
-chart6.update_layout(title='Average Sales and Quantity by Time', 
+chart6.update_layout(title='Average Quantity by Time', 
                     xaxis_title='Hour', 
                     yaxis_title='Sales',
                     yaxis=dict(showgrid=False, 
