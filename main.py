@@ -333,7 +333,7 @@ chart6.add_trace(go.Bar(x=time_order['Hour'],
                         text= time_order['Avg Sales Unit']))
 
 # Update layout
-chart6.update_layout(title='"Average Order per Time"', 
+chart6.update_layout(title='Average Order per Time', 
                     xaxis_title='Time', 
                     yaxis_title='Sales',
                     yaxis=dict(showgrid=False, 
