@@ -61,8 +61,8 @@ ftrend.sort_values("Month Name", inplace=True)
     
 # Create Chart 1
 chart1 = go.Figure()
+
 # Add Line Chart
-    
 for menu, color in zip(ftrend['Menu'].unique(), px.colors.qualitative.Plotly):
         data = ftrend[ftrend['Menu'] == menu]
         chart1.add_trace(go.Scatter(x=data['Month Name'], 
@@ -465,14 +465,14 @@ chart8.update_layout(title='Drinks Manpower',
 with st.container():
     col1, col2 = st.columns(2)
     
-    with col1: # Display Chart 1-4 in the first column 
+    with col1: # Display first column 
         st.plotly_chart(chart1, use_container_width=True)
         st.plotly_chart(chart3_plot, use_container_width=True)
         st.plotly_chart(chart5, use_container_width=True)
         st.plotly_chart(chart7, use_container_width=True)
         
     
-    with col2: # Display Chart 2-8 in the second column
+    with col2: # Display second column
         st.plotly_chart(chart2, use_container_width=True)
         st.plotly_chart(chart4_plot, use_container_width=True)
         st.plotly_chart(chart6, use_container_width=True)
