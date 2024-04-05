@@ -26,7 +26,7 @@ def update_data():
     while True:
         new_df = load_data() # Load new data
         df.iloc[:] = new_df.iloc[:] # Update DataFrame
-        time.sleep(60)
+        time.sleep()
 
 
 ## Chart 1 Trend of Food Products Sales
