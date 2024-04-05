@@ -229,31 +229,16 @@ chart5 = go.Figure()
 
 # Add bar chart
 chart5.add_trace(go.Bar(x=sales_data['Day Of Week'], 
-                        y=sales_data['Avg_Sales'], 
+                        y=sales_data['Avg_Unit_sales'], 
                         name='Average Sales', 
-                        yaxis='y', 
-                        text= sales_data['Avg_Sales']))
-
-# Add line chart
-chart5.add_trace(go.Scatter(x=sales_data['Day Of Week'], 
-                            y=sales_data['Avg_Unit_sales'], 
-                            mode='lines', 
-                            name='Average Quantity', 
-                            yaxis='y2',
-                            line=dict(color='red')))
+                        yaxis='y',
+                        text= sales_data['Avg_Unit_sales']))
 
 # Update layout
 chart5.update_layout(title='Average Sales and Quantity by Day', 
                      xaxis_title='', 
                      yaxis_title='Sales',
-                     yaxis=dict(showgrid=False, 
-                                range=[0, max(sales_data['Avg_Sales'])+100]),
-                     yaxis2=dict(title='Quantity',
-                                 showgrid=False,
-                                 overlaying='y', 
-                                 side='right', 
-                                 position=1,
-                                 range=[0, max(sales_data['Avg_Unit_sales'])+50]),
+                     yaxis=dict(showgrid=False),
                      legend=dict(x=1.05, 
                                  y=1.0, 
                                  xanchor='left', 
@@ -292,33 +277,22 @@ time_order = time_order.round().sort_values(by= "Hour" )
 # Create Chart 6
 chart6 = go.Figure()
 
+# Create Chart 6
+chart6 = go.Figure()
+
 # Add bar chart
 chart6.add_trace(go.Bar(x=time_order['Hour'], 
-                        y=time_order['Avg Sales'], 
+                        y=time_order['Avg Sales Unit'], 
                         name='Average Sales', 
                         yaxis='y', 
-                        text= time_order['Avg Sales']))
-
-# Add line chart
-chart6.add_trace(go.Scatter(x=time_order['Hour'], 
-                            y=time_order['Avg Sales Unit'], 
-                            mode='lines', 
-                            name='Average Quantity', 
-                            yaxis='y2',
-                            line= dict(color = 'red')))
+                        text= time_order['Avg Sales Unit']))
 
 # Update layout
 chart6.update_layout(title='Average Sales and Quantity by Time', 
                     xaxis_title='Hour', 
                     yaxis_title='Sales',
                     yaxis=dict(showgrid=False, 
-                               range = [0,max(time_order['Avg Sales']) + 20]),
-                    yaxis2=dict(title=' Quantity',
-                                showgrid=False,
-                                overlaying='y', 
-                                side='right', 
-                                position=1,
-                                range=[0, max(time_order['Avg Sales Unit'])+5]),
+                               range = [0,max(time_order['Avg Sales Unit'])+5]),
                     legend=dict(x=1.05, 
                                 y=1.0, 
                                 xanchor='left', 
