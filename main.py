@@ -2,6 +2,16 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import time
+
+
+#Page Setup
+st.set_page_config(
+    page_title="Restaurant Analytics",
+    layout="wide")
+
+st.title('Restaurant Analytics')
+
 
 #read CSV file
 # Function to load data from URL
@@ -19,65 +29,53 @@ def update_data():
         time.sleep(60)
 
 
-#Page Setup
-st.set_page_config(
-    page_title="Restaurant Analytics",
-    layout="wide")
-
-st.title('Restaurant Analytics')
-
-
 ## Chart 1 Trend of Food Products Sales
 
 # Adjust datatype and format of the date column.
 df[['Day', 'Month', 'Year']] = df['Date'].str.split('/', expand=True)
-
+    
 df['Date'] = pd.to_datetime(df[['Day', 'Month', 'Year']], format='%d/%m/%y')
-
+    
 df.drop(['Day', 'Month', 'Year'], axis=1, inplace=True)
-
-
+    
 # Create a column for month names.
 df["Month Name"] = df["Date"].dt.month_name()\
                              .map(lambda x: x[:3]\
                              .upper())
-
-
+    
 # Count the number of food orders grouped by Month Name and Menu.
 ftrend = df[df["Category"] == "food"]\
-    .groupby(["Month Name","Menu"])["Price"]\
-    .agg("count")\
-    .reset_index()
-
-
+            .groupby(["Month Name","Menu"])["Price"]\
+            .agg("count")\
+            .reset_index()
+    
 # Rename column
 ftrend = ftrend.rename(columns= {"Price":"Quantity"}) 
-
+    
 # Sort the data by month.
 Month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 
 ftrend["Month Name"] = pd.Categorical(ftrend["Month Name"], categories=Month, ordered=True)
 
 ftrend.sort_values("Month Name", inplace=True)
-
-
+    
 # Create Chart 1
 chart1 = go.Figure()
-
 # Add Line Chart
+    
 for menu, color in zip(ftrend['Menu'].unique(), px.colors.qualitative.Plotly):
-    data = ftrend[ftrend['Menu'] == menu]
-    chart1.add_trace(go.Scatter(x=data['Month Name'], 
+        data = ftrend[ftrend['Menu'] == menu]
+        chart1.add_trace(go.Scatter(x=data['Month Name'], 
                                  y=data['Quantity'], 
                                  mode='lines', 
                                  name=menu,
                                  line=dict(color=color)))
-
 # Update layout
 chart1.update_layout(title='Trend of Food Products Sales',
                      xaxis_title='',
                      yaxis_title='Quantity',
                      yaxis=dict(range=[0, max(ftrend['Quantity']) + 300]))
+
 
 
 ## Chart 2 Trend of Beverage Product Sales
@@ -463,20 +461,21 @@ chart8.update_layout(title='Drinks Manpower',
                                 yanchor='top'))
 
 
-
 # Set up Page layout
-col1, col2 = st.columns(2)
+with st.container():
+    col1, col2 = st.columns(2)
+    
+    with col1: # Display Chart 1-4 in the first column 
+        st.plotly_chart(chart1, use_container_width=True)
+        st.plotly_chart(chart3_plot, use_container_width=True)
+        st.plotly_chart(chart5, use_container_width=True)
+        st.plotly_chart(chart7, use_container_width=True)
+        
+    
+    with col2: # Display Chart 2-8 in the second column
+        st.plotly_chart(chart2, use_container_width=True)
+        st.plotly_chart(chart4_plot, use_container_width=True)
+        st.plotly_chart(chart6, use_container_width=True)
+        st.plotly_chart(chart8, use_container_width=True)
 
-# Display Chart 1-4 in the first column
-with col1:
-    st.plotly_chart(chart1, use_container_width=True)
-    st.plotly_chart(chart3_plot, use_container_width=True)
-    st.plotly_chart(chart5, use_container_width=True)
-    st.plotly_chart(chart7, use_container_width=True)
-
-# Display Chart 2-8 in the second column
-with col2:
-    st.plotly_chart(chart2, use_container_width=True)
-    st.plotly_chart(chart4_plot, use_container_width=True)
-    st.plotly_chart(chart6, use_container_width=True)
-    st.plotly_chart(chart8, use_container_width=True)
+time.sleep(1)
